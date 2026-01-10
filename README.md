@@ -23,8 +23,6 @@ Allows players to subscribe and unsubscribe to broadcast messages sent by other 
 
 ## Configuration
 
-> The settings and options can be configured in the `BroadcastPreferences` file under the `config` directory. The use of an editor and validator is recommended to avoid formatting issues and syntax errors.
-
 ```json
 {
   "Topics": [
@@ -111,8 +109,6 @@ Allows players to subscribe and unsubscribe to broadcast messages sent by other 
   - `Ignore Styles`: If true, the plugin will strip any `<color>` and `<size>` tags from messages before processing them for this topic.
 
 ## Localization
-
-> The default messages are in the `BroadcastPreferences` file under the `lang/en` directory. To add support for another language, create a new language folder (e.g. `de` for German) if not already created, copy the default language file to the new folder and then customize the messages.
 
 ```json
 {
