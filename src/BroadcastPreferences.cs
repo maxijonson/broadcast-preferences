@@ -32,8 +32,7 @@ public class BroadcastPreferences : RustPlugin
 {
     #region Vars
     private new const string Name = "BroadcastPreferences";
-    private string ChatIdentifier = Guid.NewGuid().ToString();
-    private readonly Dictionary<string, HashSet<ulong>> _subs = new();
+    private const string ChatIdentifier = "BroadcastPreferences";
     #endregion
 
     #region Hooks
@@ -45,8 +44,20 @@ public class BroadcastPreferences : RustPlugin
     private object OnSendCommand(Connection cn, string command, object[] args)
     {
         var connections = Facepunch.Pool.Get<List<Connection>>();
-        connections.Add(cn);
-        return OnSendCommand(connections, command, args);
+        try
+        {
+            connections.Add(cn);
+            return OnSendCommand(connections, command, args);
+        }
+        catch (Exception ex)
+        {
+            LogError(ex);
+            return null;
+        }
+        finally
+        {
+            Facepunch.Pool.FreeUnmanaged(ref connections);
+        }
     }
 
     private object OnSendCommand(List<Connection> cn, string command, object[] args)
@@ -332,62 +343,74 @@ public class BroadcastPreferences : RustPlugin
     private bool DispatchMessage(int channel, ulong userId, string message, IEnumerable<BasePlayer> players)
     {
         var remainingPlayers = Facepunch.Pool.Get<List<BasePlayer>>();
-        remainingPlayers.AddRange(players);
-        if (remainingPlayers.Count == 0) return false;
-
-        var topics = ResolveBroadcastTopics(userId, message);
-        if (topics.Count == 0) return false;
-
-        var sentPlayers = new HashSet<ulong>();
-        foreach (var topic in topics)
+        try
         {
-            if (remainingPlayers.Count == 0) break;
+            remainingPlayers.AddRange(players);
+            if (remainingPlayers.Count == 0) return false;
 
-            if (topic.SteamAvatarUserID != 0)
+            var topics = ResolveBroadcastTopics(userId, message);
+            if (topics.Count == 0) return false;
+
+            var sentPlayers = new HashSet<ulong>();
+            foreach (var topic in topics)
             {
-                userId = topic.SteamAvatarUserID;
-            }
+                if (remainingPlayers.Count == 0) break;
 
-            var topicData = _data.Subscriptions.GetValueOrDefault(topic.ID);
-
-            for (int i = remainingPlayers.Count - 1; i >= 0; i--)
-            {
-                var target = remainingPlayers[i];
-                if (sentPlayers.Contains(target.userID)) continue;
-
-                if (topicData != null && topicData.Count > 0)
+                if (topic.SteamAvatarUserID != 0)
                 {
-                    if (!topicData.ContainsKey(target.userID))
+                    userId = topic.SteamAvatarUserID;
+                }
+
+                var topicData = _data.Subscriptions.GetValueOrDefault(topic.ID);
+
+                for (int i = remainingPlayers.Count - 1; i >= 0; i--)
+                {
+                    var player = remainingPlayers[i];
+                    if (sentPlayers.Contains(player.userID)) continue;
+
+                    if (topicData != null && topicData.Count > 0)
+                    {
+                        if (!topicData.ContainsKey(player.userID))
+                        {
+                            if (!topic.SubscribeByDefault)
+                            {
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            var subscription = topicData[player.userID];
+                            if (!subscription.OptedIn)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                    else
                     {
                         if (!topic.SubscribeByDefault)
                         {
                             continue;
                         }
                     }
-                    else
-                    {
-                        var subscription = topicData[target.userID];
-                        if (!subscription.OptedIn)
-                        {
-                            continue;
-                        }
-                    }
-                }
-                else
-                {
-                    if (!topic.SubscribeByDefault)
-                    {
-                        continue;
-                    }
-                }
 
-                target.SendConsoleCommand("chat.add", channel, userId, message, ChatIdentifier);
-                sentPlayers.Add(target.userID);
-                remainingPlayers.RemoveAt(i);
+                    player.SendConsoleCommand("chat.add", channel, userId, message, ChatIdentifier);
+                    sentPlayers.Add(player.userID);
+                    remainingPlayers.RemoveAt(i);
+                }
             }
-        }
 
-        return true;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            LogError(ex);
+        }
+        finally
+        {
+            Facepunch.Pool.FreeUnmanaged(ref remainingPlayers);
+        }
+        return false;
     }
 
     private string GetStylelessMessage(string message)
@@ -397,7 +420,7 @@ public class BroadcastPreferences : RustPlugin
 
     private List<Topic> ResolveBroadcastTopics(ulong userId, string message)
     {
-        var matchedTopics = Facepunch.Pool.Get<List<Topic>>();
+        var matchedTopics = new List<Topic>();
         string stylelessMessage = null; // Don't compute unless needed
 
         foreach (var topic in _config.Topics)
@@ -621,6 +644,7 @@ public class BroadcastPreferences : RustPlugin
         base.LoadConfig();
         _config = base.Config.ReadObject<PluginConfig>();
         _config.Version = Version;
+        ValidateConfig();
         SaveConfig();
     }
 
@@ -714,7 +738,7 @@ public class BroadcastPreferences : RustPlugin
         lang.RegisterMessages(
             new Dictionary<string, string>
             {
-                ["TestMessage"] = "This is a <color=#ff00ff>test message</color> for <color=yellow>Broadcast Subscriptions</color> <color=#f0f>plugin</color>.",
+                ["TestMessage"] = "This is a <color=#ff00ff>test message</color> for <color=yellow>Broadcast Preferences</color> <color=#f0f>plugin</color>.",
                 ["Usage"] = "Usage:",
                 ["Usage.Description"] = "Listen or mute broadcasted messages by topic.",
                 ["Usage.Command"] = "<color=#f0761f>{0}</color> - {1}",

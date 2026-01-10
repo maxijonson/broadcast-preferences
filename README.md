@@ -92,7 +92,7 @@ Allows players to subscribe and unsubscribe to broadcast messages sent by other 
 }
 ```
 
-- `Topics`: An array of topic objects defining the broadcast categories.
+- `Topics`: An array of topic objects defining the broadcast categories. The order of topics only matters if the `Stop On Match` option is used. Topics are evaluated in the order they are listed.
   - `Topic ID`: A unique identifier for the topic.
   - `Display Name`: The name displayed in chat to players for this topic.
   - `Enabled`: Whether the topic is active.
@@ -101,7 +101,13 @@ Allows players to subscribe and unsubscribe to broadcast messages sent by other 
   - `User ID Match`: If set to a specific user ID, only messages from that user will be considered for this topic. Set to 0 to ignore user ID filtering. This can be useful that allow you to configure the user ID used when sending messages. You can specify a random user ID that will match the topic, then override the avatar using the `Override Steam Avatar User ID` setting.
   - `Message Regex Match`: An array of regular expressions used to match broadcast messages for this topic. You may specify multiple regex patterns for a single topic. The first matching pattern will trigger the topic.
   - `Override Steam Avatar User ID`: If set, this user ID's avatar will be used in notifications for this topic. Particularly useful when combined with the `User ID Match` setting.
-  - `Stop On Match`: If true, no further topics will be checked after a match is found for this topic.
+  - `Stop On Match`: If true, no further topics will be checked after a match is found for this topic. In practice, you shouldn't really need this option unless you've got two topics with overlapping regex patterns.
+    - **Scenario**: 
+      - Topic A: `^\\[Important\\]` with `Stop On Match` set to true
+      - Topic B: `Important`
+      - Message: `[Important] Server will restart in 10 minutes.`
+      - Player is **unsubscribed** to Topic A but **subscribed** to Topic B.
+      - Result: The message matches Topic A and stops looking for more topics, so the player does not receive the message, even though they are subscribed to Topic B, because Topic A stopped further processing.
   - `Ignore Styles`: If true, the plugin will strip any `<color>` and `<size>` tags from messages before processing them for this topic.
 
 ## Localization
