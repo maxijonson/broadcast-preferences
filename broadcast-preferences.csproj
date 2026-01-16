@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>11</LangVersion>
+        <RootNamespace>BroadcastPreferencesPlugin</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Remove="BroadcastPreferences.cs" />
+        <Compile Remove="server/oxide/plugins/BroadcastPreferences.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="./.gitignore">
+            <Link>.gitignore</Link>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Auto-include all other DLLs from the Managed folder. Exclude the ones that generate
+        conflicts. -->
+        <ManagedDlls
+            Include="server/RustDedicated_Data/Managed\*.dll"
+            Exclude="
+                server\RustDedicated_Data\Managed\Microsoft.Bcl.AsyncInterfaces.dll;
+                server\RustDedicated_Data\Managed\System.Text.Encodings.Web.dll;
+                server\RustDedicated_Data\Managed\System.Text.Json.dll;
+                server\RustDedicated_Data\Managed\System.Security.Cryptography.ProtectedData.dll;
+                server\RustDedicated_Data\Managed\Azure.*.dll;
+                server\RustDedicated_Data\Managed\Microsoft.Identity.*.dll;
+                server\RustDedicated_Data\Managed\System.ClientModel.dll;
+                server\RustDedicated_Data\Managed\System.Memory.Data.dll;
+                server\RustDedicated_Data\Managed\Newtonsoft.Json.dll;
+            "
+        />
+        <Reference Include="@(ManagedDlls)">
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <Exec Command="plugin.merge -m -c -p merge.json" />
+    </Target>
+
+</Project>

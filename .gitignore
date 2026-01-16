@@ -1,0 +1,25 @@
+steam/
+server/
+**/*.exe
+**/*.dll
+
+server/Bundles
+server/cfg
+server/MonoBleedingEdge
+server/RustDedicated_Data
+server/steamapps
+server/HarmonyMods
+server/server
+server/config
+server/appcache
+server/logs
+server/userdata
+server/harmony_log.txt
+
+server/oxide/logs
+
+server/oxide/data/**/*.*
+# !server/oxide/data/oxide.groups.data
+
+bin
+obj

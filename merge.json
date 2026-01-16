@@ -1,0 +1,45 @@
+{
+  "Platform": "Oxide",
+  "Merge Settings": {
+    "Plugin Name": "BroadcastPreferences",
+    "Creator Mode": "Plugin",
+    "Namespace Override": "",
+    "Plugin Input Paths": [
+      "./src"
+    ],
+    "Plugin Output Paths": [
+      "./",
+      "./server/oxide/plugins"
+    ],
+    "Reference Definitions": [],
+    "Requires Definitions": [],
+    "Define Definitions": [],
+    "Ignore Paths": [],
+    "Ignore Files": [],
+    "Ignore Namespaces": [
+      "BroadcastPreferencesPlugin"
+    ],
+    "Code Style": {
+      "Indent Character": " ",
+      "Indent Char Amount": 4,
+      "Indent Multiplier": 1,
+      "New Line String": "\r\n",
+      "Write The Relative File Path In Region": true,
+      "Keep Code Comments": false
+    }
+  },
+  "Preprocessor Directive Settings": {
+    "Preprocessor Directives": []
+  },
+  "Compile Settings": {
+    "Assembly Paths": [
+      "./server/RustDedicated_Data/Managed"
+    ],
+    "Ignore Paths": [
+      "./server/RustDedicated_Data/Managed/x86",
+      "./server/RustDedicated_Data/Managed/x64"
+    ],
+    "Ignore Files": [],
+    "Compile Log Level (Hidden, Info, Warning, Error)": "Error"
+  }
+}
