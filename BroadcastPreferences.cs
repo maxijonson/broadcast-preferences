@@ -9,7 +9,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 
-//BroadcastPreferences created with PluginMerge v(1.0.13.0) by MJSU @ https://github.com/dassjosh/Plugin.Merge
+//BroadcastPreferences created with PluginMerge v(1.0.14.0) by MJSU @ https://github.com/dassjosh/Plugin.Merge
 namespace Oxide.Plugins;
 
 [Info("Broadcast Preferences", "MaxiJonson", "0.2.0")]

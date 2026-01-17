@@ -8,23 +8,23 @@ The root `BroadcastPreferences.cs` file is auto-generated during the build proce
 
 ## Setup
 
-This plugin uses [MJSU's Plugin Merge tool](https://github.com/dassjosh/Plugin.Merge) to merge C# files into a single plugin file for Oxide. This makes it incredibly easier to manage and organize the codebase.
-
 In case you're trying to replicate the dev environment I used, this plugin was originally developed using [VS Code](https://code.visualstudio.com/download) with the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit) extension installed. You may use other IDEs, but I can't guarantee that everything will work the same.
 
-**Install the Plugin Merge tool**
+**Install dependencies**
 
-You can install the Plugin Merge tool globally using the following command:
+This plugin uses [MJSU's Plugin Merge tool](https://github.com/dassjosh/Plugin.Merge) to merge C# files into a single plugin file for Oxide. This makes it incredibly easier to manage and organize the codebase.
+
+You can install the Plugin Merge tool locally to the project using the following command:
 
 ```
-dotnet tool install --global MJSU.Plugin.Merge
+dotnet tool restore
 ```
 
 **Create a Test Server**
 
 This repo includes a few batch files to create, update and run a local Rust server with Oxide installed for testing purposes. You can use these scripts to quickly test your changes.
 
-1. Run the `update_production.bat` (or `update_staging.bat`) script to update the local server (or create it if it doesn't exist).
+1. Run the `update_production.bat` (or `update_staging.bat` for staging) script to update the local server (or create it if it doesn't exist).
 2. Run the `run.bat` script to start the server.
 3. Join the server in Rust using the F1 console command:
    ```

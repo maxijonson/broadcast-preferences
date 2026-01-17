@@ -41,7 +41,7 @@
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Command="plugin.merge -m -c -p merge.json" />
+        <Exec Command="dotnet tool run plugin.merge -- -m -c -p merge.json" />
     </Target>
 
 </Project>

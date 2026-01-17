@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "mjsu.plugin.merge": {
+      "version": "1.0.14",
+      "commands": [
+        "plugin.merge"
+      ],
+      "rollForward": false
+    }
+  }
+}
