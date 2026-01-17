@@ -39,6 +39,12 @@ To build the plugin and generate the `BroadcastPreferences.cs` and the `server/o
 dotnet build
 ```
 
+You can also watch for changes so that the plugin is rebuilt automatically whenever you save a file:
+
+```
+dotnet watch build
+```
+
 ## Conventions
 
 The goal of having the ability to split the plugin into multiple files is to improve code organization and maintainability. Please follow the existing file structure and conventions when adding new features or making changes.
