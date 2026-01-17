@@ -1,3 +1,4 @@
+//Define:FileOrder=305
 using Oxide.Plugins;
 
 namespace BroadcastPreferencesPlugin.Plugin;

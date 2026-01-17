@@ -1,3 +1,4 @@
+//Define:FileOrder=1000
 using System.Text.RegularExpressions;
 
 namespace BroadcastPreferencesPlugin.Plugin;

@@ -1,3 +1,4 @@
+//Define:FileOrder=0
 using Oxide.Plugins;
 
 // TODO: Make the command configurable (default: "topic")

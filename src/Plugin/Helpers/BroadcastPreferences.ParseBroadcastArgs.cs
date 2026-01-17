@@ -1,3 +1,4 @@
+//Define:FileOrder=1000
 namespace BroadcastPreferencesPlugin.Plugin;
 
 public partial class BroadcastPreferences

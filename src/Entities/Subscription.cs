@@ -1,3 +1,4 @@
+//Define:FileOrder=1400
 using Newtonsoft.Json;
 
 namespace BroadcastPreferencesPlugin.Entities;

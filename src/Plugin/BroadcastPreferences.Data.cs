@@ -1,3 +1,4 @@
+//Define:FileOrder=1500
 using BroadcastPreferencesPlugin.Data;
 using Newtonsoft.Json;
 using Oxide.Core;

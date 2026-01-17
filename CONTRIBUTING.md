@@ -59,6 +59,23 @@ The goal of having the ability to split the plugin into multiple files is to imp
 - **Root Plugin Class**: Keep root class (`BroadcastPreferences`) methods and fields (i.e., those that belong to the `BroadcastPreferences` class) in the `Plugin` folder. Always prefix files under the `Plugin` folder with `BroadcastPreferences.` to signal that they belong to the root class. The `Plugin` folder is essentially the equivalent of a single large `BroadcastPreferences.cs` file split into multiple files.
 - **Namespaces**: Use a namespace name for each file that matches the parent folder name under `src`. For example, the file `src/Plugin/Commands/BroadcastPreferencesCommands.cs` should use the namespace `BroadcastPreferences.Plugin` because `Plugin` is the name of the top-most parent folder relative to `src`.
 - **Build Warnings & Errors**: Always ensure that your code compiles without any warnings or errors before submitting a pull request. Treat warnings as errors to maintain a high-quality codebase
+- **`FileOrder` Directive**: Use `//Define:FileOrder=<number>` at the top of files to control the order in which files are merged. Lower numbers are merged first, default is `1000`. Don't be afraid to space out numbers to allow for future insertions or even re-use existing ones. The current ordering is:
+  > As of Plugin.Merge v1.0.14, the FileOrder directive has an issue where all data files (separate classes) are always merged last, regardless of the specified order. Until then, it's fine to leave the order broken for data files (e.g: entities). A [PR](https://github.com/dassjosh/Plugin.Merge/pull/31) has been submitted to fix this issue.
+  - `0` - Root
+  - `100` - Vars
+  - `200` - Hooks
+  - `300` - Universal Commands
+  - `301` - Universal Commands Handlers (e.g: sub-commands)
+  - `305` - Console Commands
+  - `306` - Console Commands Handlers (e.g: sub-commands)
+  - `310` - Chat Commands
+  - `311` - Chat Commands Handlers (e.g: sub-commands)
+  - `1000` - Helpers
+  - `1400` - Entities
+  - `1500` - Configuration, Data
+  - `1500` - Configuration
+  - `1600` - Localization
+  - `2000` - Logging
 
 ## Before Submitting a Pull Request
 
