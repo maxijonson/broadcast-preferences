@@ -65,15 +65,14 @@ The goal of having the ability to split the plugin into multiple files is to imp
   - `100` - Vars
   - `200` - Hooks
   - `300` - Universal Commands
-  - `301` - Universal Commands Handlers (e.g: sub-commands)
+    - `301` - Universal Commands Handlers (e.g: sub-commands)
   - `305` - Console Commands
-  - `306` - Console Commands Handlers (e.g: sub-commands)
+    - `306` - Console Commands Handlers (e.g: sub-commands)
   - `310` - Chat Commands
-  - `311` - Chat Commands Handlers (e.g: sub-commands)
+    - `311` - Chat Commands Handlers (e.g: sub-commands)
   - `1000` - Helpers
   - `1400` - Entities
   - `1500` - Configuration, Data
-  - `1500` - Configuration
   - `1600` - Localization
   - `2000` - Logging
 
