@@ -1,12 +1,13 @@
 //Define:FileOrder=1500
-using BroadcastPreferencesPlugin.Entities;
+using System.Collections.Generic;
 using BroadcastPreferencesPlugin.Configuration;
+using BroadcastPreferencesPlugin.Entities;
 
 namespace BroadcastPreferencesPlugin.Plugin;
 
 public partial class BroadcastPreferences
 {
-    private PluginConfig _config;
+    private PluginConfig _config = new PluginConfig();
 
     protected override void LoadDefaultConfig()
     {
@@ -22,11 +23,11 @@ public partial class BroadcastPreferences
                 Enabled = true,
                 SubscribeByDefault = true,
                 MessageRegexStrings = new List<string>
-                    {
-                       @"raidable base event has opened",
-                       @"Destroyed a left over raid base at",
-                       @"Next automated raid in"
-                    },
+                {
+                    @"raidable base event has opened",
+                    @"Destroyed a left over raid base at",
+                    @"Next automated raid in",
+                },
             },
             new Topic
             {
@@ -36,10 +37,7 @@ public partial class BroadcastPreferences
                 Enabled = true,
                 SubscribeByDefault = true,
                 IgnoreStyles = true,
-                MessageRegexStrings = new List<string>
-                    {
-                        @"^\[DeathNotes\]"
-                    },
+                MessageRegexStrings = new List<string> { @"^\[DeathNotes\]" },
             },
             new Topic
             {
@@ -50,23 +48,23 @@ public partial class BroadcastPreferences
                 SubscribeByDefault = true,
                 IgnoreStyles = true,
                 MessageRegexStrings = new List<string>
-                    {
-                        @"^Patrol Helicopter inbound",
-                        @"^Cargo Ship inbound",
-                        @"^Cargo Ship is approaching the harbor",
-                        @"^Cargo Ship has docked at the harbor",
-                        @"^Chinook inbound",
-                        @"^Bradley APC inbound",
-                        @"^Travelling Vendor inbound",
-                        @"^Hackable Crate has spawned",
-                        @"Cargo Plane inbound",
-                        @" has activated The Excavator",
-                        @" has requested a supply drop",
-                        @" is hacking a locked crate",
-                        @" has deployed a supply signal",
-                        @"Supply Drop has (dropped|landed)"
-                    },
-            }
+                {
+                    @"^Patrol Helicopter inbound",
+                    @"^Cargo Ship inbound",
+                    @"^Cargo Ship is approaching the harbor",
+                    @"^Cargo Ship has docked at the harbor",
+                    @"^Chinook inbound",
+                    @"^Bradley APC inbound",
+                    @"^Travelling Vendor inbound",
+                    @"^Hackable Crate has spawned",
+                    @"Cargo Plane inbound",
+                    @" has activated The Excavator",
+                    @" has requested a supply drop",
+                    @" is hacking a locked crate",
+                    @" has deployed a supply signal",
+                    @"Supply Drop has (dropped|landed)",
+                },
+            },
         };
         SaveConfig();
     }
@@ -100,7 +98,9 @@ public partial class BroadcastPreferences
 
             if (topicNames.Contains(topic.DisplayName))
             {
-                LogWarning($"Duplicate topic name found in config: '{topic.DisplayName}'. Only the first occurence will match when users refer to topics by name.");
+                LogWarning(
+                    $"Duplicate topic name found in config: '{topic.DisplayName}'. Only the first occurence will match when users refer to topics by name."
+                );
             }
             else
             {

@@ -3,7 +3,7 @@ namespace BroadcastPreferencesPlugin.Plugin;
 
 public partial class BroadcastPreferences
 {
-    private (int channel, ulong userId, string message) ParseBroadcastArgs(object[] args)
+    private (int channel, ulong userId, string message) ParseBroadcastArgs(object[]? args)
     {
         int channel = 0;
         ulong userId = 0;

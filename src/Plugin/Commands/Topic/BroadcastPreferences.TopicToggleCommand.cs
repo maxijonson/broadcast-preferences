@@ -6,6 +6,7 @@ namespace BroadcastPreferencesPlugin.Plugin;
 public partial class BroadcastPreferences
 {
     const string CMD_TOPIC_TOGGLE_USAGE = $"/{CMD_TOPIC} toggle <topic>";
+
     private void HandleTopicToggleCommand(BasePlayer player, string topicName)
     {
         var topic = _config.FindTopic(topicName);

@@ -8,8 +8,8 @@ namespace BroadcastPreferencesPlugin.Plugin;
 
 public partial class BroadcastPreferences
 {
-    private PluginData _data;
-    private DynamicConfigFile _dataFile;
+    private PluginData _data = new PluginData();
+    private DynamicConfigFile? _dataFile;
 
     private void LoadData()
     {
@@ -30,6 +30,7 @@ public partial class BroadcastPreferences
 
     private void SaveData()
     {
-        if (_dataFile != null) _dataFile.WriteObject(_data);
+        if (_dataFile != null)
+            _dataFile.WriteObject(_data);
     }
 }

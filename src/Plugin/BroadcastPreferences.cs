@@ -16,6 +16,4 @@ namespace BroadcastPreferencesPlugin.Plugin;
 
 [Info("Broadcast Preferences", "MaxiJonson", "0.2.0")]
 [Description("Allow players to subscribe or unsubscribe from broadcasted messages by topic.")]
-public partial class BroadcastPreferences : RustPlugin
-{
-}
+public partial class BroadcastPreferences : RustPlugin { }

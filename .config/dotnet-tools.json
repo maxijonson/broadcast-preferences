@@ -8,6 +8,13 @@
         "plugin.merge"
       ],
       "rollForward": false
+    },
+    "csharpier": {
+      "version": "1.2.5",
+      "commands": [
+        "csharpier"
+      ],
+      "rollForward": false
     }
   }
 }

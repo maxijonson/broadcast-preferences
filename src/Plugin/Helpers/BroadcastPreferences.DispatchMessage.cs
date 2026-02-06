@@ -1,4 +1,7 @@
 //Define:FileOrder=1000
+using System;
+using System.Collections.Generic;
+
 namespace BroadcastPreferencesPlugin.Plugin;
 
 public partial class BroadcastPreferences
@@ -9,15 +12,18 @@ public partial class BroadcastPreferences
         try
         {
             remainingPlayers.AddRange(players);
-            if (remainingPlayers.Count == 0) return false;
+            if (remainingPlayers.Count == 0)
+                return false;
 
             var topics = ResolveBroadcastTopics(userId, message);
-            if (topics.Count == 0) return false;
+            if (topics.Count == 0)
+                return false;
 
             var sentPlayers = new HashSet<ulong>();
             foreach (var topic in topics)
             {
-                if (remainingPlayers.Count == 0) break;
+                if (remainingPlayers.Count == 0)
+                    break;
 
                 if (topic.SteamAvatarUserID != 0)
                 {
@@ -29,7 +35,8 @@ public partial class BroadcastPreferences
                 for (int i = remainingPlayers.Count - 1; i >= 0; i--)
                 {
                     var player = remainingPlayers[i];
-                    if (sentPlayers.Contains(player.userID)) continue;
+                    if (sentPlayers.Contains(player.userID))
+                        continue;
 
                     if (topicData != null && topicData.Count > 0)
                     {

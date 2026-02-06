@@ -1,4 +1,6 @@
 //Define:FileOrder=1500
+using System;
+using System.Collections.Generic;
 using BroadcastPreferencesPlugin.Entities;
 using Newtonsoft.Json;
 using Oxide.Core;
@@ -7,13 +9,17 @@ namespace BroadcastPreferencesPlugin.Configuration;
 
 public class PluginConfig
 {
-    [JsonProperty(PropertyName = "Topics", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
+    [JsonProperty(
+        PropertyName = "Topics",
+        NullValueHandling = NullValueHandling.Ignore,
+        DefaultValueHandling = DefaultValueHandling.Ignore
+    )]
     public List<Topic> Topics = new();
 
     [JsonProperty(PropertyName = "Version")]
     public VersionNumber Version { get; set; }
 
-    public Topic FindTopic(string search)
+    public Topic? FindTopic(string search)
     {
         var topicByName = Topics.Find(t => string.Equals(t.DisplayName, search, StringComparison.OrdinalIgnoreCase));
         if (topicByName != null)

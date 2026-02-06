@@ -1,14 +1,17 @@
 //Define:FileOrder=200
+using System;
+using System.Collections.Generic;
 using ConVar;
 using Network;
-using System.Collections.Generic;
 
 namespace BroadcastPreferencesPlugin.Plugin;
 
 public partial class BroadcastPreferences
 {
-    private object OnSendCommand(Connection cn, string command, object[] args)
+    private object? OnSendCommand(Connection? cn, string? command, object[]? args)
     {
+        if (cn == null)
+            return null;
         var connections = Facepunch.Pool.Get<List<Connection>>();
         try
         {
@@ -26,9 +29,12 @@ public partial class BroadcastPreferences
         }
     }
 
-    private object OnSendCommand(List<Connection> cn, string command, object[] args)
+    private object? OnSendCommand(List<Connection>? connections, string? command, object[]? args)
     {
-        if (command != "chat.add" && command != "chat.add2") return null;
+        if (command != "chat.add" && command != "chat.add2")
+            return null;
+        if (connections == null || connections.Count == 0)
+            return null;
 
         var (channel, userId, message, chatIdentifier) = ParseSendCommandArgs(args);
         if (channel != ((int)Chat.ChatChannel.Server))
@@ -46,10 +52,11 @@ public partial class BroadcastPreferences
         var dispatched = false;
         try
         {
-            foreach (var connection in cn)
+            foreach (var cn in connections)
             {
-                var player = BasePlayer.FindByID(connection.userid);
-                if (player == null || !player.IsConnected) continue;
+                var player = BasePlayer.FindByID(cn.userid);
+                if (player == null || !player.IsConnected)
+                    continue;
                 players.Add(player);
             }
             dispatched = DispatchMessage(channel, userId, message, players);

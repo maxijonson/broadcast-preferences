@@ -1,4 +1,7 @@
 //Define:FileOrder=1400
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using BroadcastPreferencesPlugin.Plugin;
@@ -30,7 +33,7 @@ public class Topic
     public List<string> MessageRegexStrings = new();
 
     [JsonIgnore]
-    public List<Regex> MessageRegexes { get; private set; }
+    public List<Regex>? MessageRegexes { get; private set; }
 
     [JsonProperty(PropertyName = "Override Steam Avatar User ID")]
     public ulong SteamAvatarUserID = 0;
@@ -56,11 +59,15 @@ public class Topic
         {
             try
             {
-                MessageRegexes = MessageRegexStrings.Select(pattern => new Regex(pattern, RegexOptions.Compiled)).ToList();
+                MessageRegexes = MessageRegexStrings
+                    .Select(pattern => new Regex(pattern, RegexOptions.Compiled))
+                    .ToList();
             }
             catch
             {
-                BroadcastPreferences.LogError($"Invalid regex pattern in topic '{DisplayName}': '{MessageRegexStrings}'");
+                BroadcastPreferences.LogError(
+                    $"Invalid regex pattern in topic '{DisplayName}': '{MessageRegexStrings}'"
+                );
                 MessageRegexes = null;
             }
         }

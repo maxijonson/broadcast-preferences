@@ -6,6 +6,7 @@ namespace BroadcastPreferencesPlugin.Plugin;
 public partial class BroadcastPreferences
 {
     private const string CMD_TOPIC = "topic";
+
     [ChatCommand(CMD_TOPIC)]
     private void ChatCmdTopic(BasePlayer player, string command, string[] args)
     {

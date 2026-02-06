@@ -1,4 +1,5 @@
 //Define:FileOrder=1500
+using System.Collections.Generic;
 using BroadcastPreferencesPlugin.Entities;
 using Newtonsoft.Json;
 
@@ -6,7 +7,11 @@ namespace BroadcastPreferencesPlugin.Data;
 
 public class PluginData
 {
-    [JsonProperty(PropertyName = "Subscriptions", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore)]
+    [JsonProperty(
+        PropertyName = "Subscriptions",
+        NullValueHandling = NullValueHandling.Ignore,
+        DefaultValueHandling = DefaultValueHandling.Ignore
+    )]
     public Dictionary<string, Dictionary<ulong, Subscription>> Subscriptions = new();
 
     public bool IsPlayerSubscribed(string topicId, ulong userId, bool defaultSubscribe)
@@ -31,4 +36,3 @@ public class PluginData
         return Subscriptions[topicId];
     }
 }
-

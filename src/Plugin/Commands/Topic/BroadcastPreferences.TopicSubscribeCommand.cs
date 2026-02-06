@@ -6,6 +6,7 @@ namespace BroadcastPreferencesPlugin.Plugin;
 public partial class BroadcastPreferences
 {
     const string CMD_TOPIC_SUBSCRIBE_USAGE = $"/{CMD_TOPIC} subscribe <topic>";
+
     private void HandleTopicSubscribeCommand(BasePlayer player, string topicName)
     {
         var topic = _config.FindTopic(topicName);

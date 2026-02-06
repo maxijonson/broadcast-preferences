@@ -1,6 +1,6 @@
 //Define:FileOrder=2000
-using Oxide.Core;
 using System;
+using Oxide.Core;
 
 namespace BroadcastPreferencesPlugin.Plugin;
 
@@ -12,13 +12,14 @@ public partial class BroadcastPreferences
         Interface.Oxide.LogInfo("[{0}] {1}", Name, ex);
     }
 
-    protected new static void Puts(string format, params object[] args)
+    protected static new void Puts(string format, params object[] args)
     {
         if (!string.IsNullOrWhiteSpace(format))
         {
             Interface.Oxide.LogInfo("[{0}] {1}", Name, (args.Length != 0) ? string.Format(format, args) : format);
         }
     }
+
     protected static void LogWarning(Exception ex)
     {
         Interface.Oxide.LogWarning("[{0}] {1}", Name, ex);
@@ -31,6 +32,7 @@ public partial class BroadcastPreferences
             Interface.Oxide.LogWarning("[{0}] {1}", Name, (args.Length != 0) ? string.Format(format, args) : format);
         }
     }
+
     public static void LogError(Exception ex)
     {
         Interface.Oxide.LogError("[{0}] {1}", Name, ex);

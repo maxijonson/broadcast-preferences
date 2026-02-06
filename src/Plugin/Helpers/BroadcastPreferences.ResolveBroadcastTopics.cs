@@ -1,6 +1,7 @@
 //Define:FileOrder=1000
-using BroadcastPreferencesPlugin.Entities;
+using System.Collections.Generic;
 using System.Linq;
+using BroadcastPreferencesPlugin.Entities;
 
 namespace BroadcastPreferencesPlugin.Plugin;
 
@@ -9,7 +10,7 @@ public partial class BroadcastPreferences
     private List<Topic> ResolveBroadcastTopics(ulong userId, string message)
     {
         var matchedTopics = new List<Topic>();
-        string stylelessMessage = null; // Don't compute unless needed
+        string? stylelessMessage = null; // Don't compute unless needed
 
         foreach (var topic in _config.Topics)
         {
