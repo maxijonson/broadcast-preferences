@@ -14,6 +14,6 @@ using Oxide.Plugins;
 
 namespace BroadcastPreferencesPlugin.Plugin;
 
-[Info("Broadcast Preferences", "MaxiJonson", "0.2.0")]
+[Info("Broadcast Preferences", "MaxiJonson", "0.2.1")]
 [Description("Allow players to subscribe or unsubscribe from broadcasted messages by topic.")]
 public partial class BroadcastPreferences : RustPlugin { }
