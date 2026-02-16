@@ -9,10 +9,10 @@ using Newtonsoft.Json;
 using Oxide.Core;
 using Oxide.Core.Configuration;
 
-//BroadcastPreferences created with PluginMerge v(1.0.14.0) by MJSU @ https://github.com/dassjosh/Plugin.Merge
+//BroadcastPreferences created with PluginMerge v(1.0.15.0) by MJSU @ https://github.com/dassjosh/Plugin.Merge
 namespace Oxide.Plugins;
 
-[Info("Broadcast Preferences", "MaxiJonson", "0.2.0")]
+[Info("Broadcast Preferences", "MaxiJonson", "0.2.1")]
 [Description("Allow players to subscribe or unsubscribe from broadcasted messages by topic.")]
 public partial class BroadcastPreferences : RustPlugin
 {
@@ -517,6 +517,85 @@ public partial class BroadcastPreferences : RustPlugin
     }
     #endregion
 
+    #region Entities\Subscription.cs
+    public class Subscription
+    {
+        [JsonProperty(PropertyName = "Opted In")]
+        public bool OptedIn = true;
+    }
+    #endregion
+
+    #region Entities\Topic.cs
+    public class Topic
+    {
+        [JsonProperty(PropertyName = "Topic ID")]
+        public string ID = "";
+
+        [JsonProperty(PropertyName = "Display Name")]
+        public string DisplayName = "";
+
+        [JsonProperty(PropertyName = "Enabled")]
+        public bool Enabled = true;
+
+        [JsonProperty(PropertyName = "Description")]
+        public string Description = "";
+
+        [JsonProperty(PropertyName = "Subscribe By Default")]
+        public bool SubscribeByDefault = true;
+
+        [JsonProperty(PropertyName = "User ID Match (0=Ignore)")]
+        public ulong UserId = 0;
+
+        [JsonProperty(PropertyName = "Message Regex Match (empty=Ignore)")]
+        public List<string> MessageRegexStrings = new();
+
+        [JsonIgnore]
+        public List<Regex>? MessageRegexes { get; private set; }
+
+        [JsonProperty(PropertyName = "Override Steam Avatar User ID")]
+        public ulong SteamAvatarUserID = 0;
+
+        [JsonProperty(PropertyName = "Stop On Match")]
+        public bool StopOnMatch = false;
+
+        [JsonProperty(PropertyName = "Ignore Styles")]
+        public bool IgnoreStyles = true;
+
+        [OnDeserialized]
+        internal void OnDeserializedMethod(StreamingContext context)
+        {
+            if (string.IsNullOrEmpty(DisplayName))
+            {
+                DisplayName = string.IsNullOrEmpty(ID) ? Guid.NewGuid().ToString().Substring(0, 8) : ID;
+            }
+            if (string.IsNullOrEmpty(ID))
+            {
+                ID = DisplayName.Replace(" ", "_").ToLower();
+            }
+            if (MessageRegexStrings != null && MessageRegexStrings.Count > 0)
+            {
+                try
+                {
+                    MessageRegexes = MessageRegexStrings
+                        .Select(pattern => new Regex(pattern, RegexOptions.Compiled))
+                        .ToList();
+                }
+                catch
+                {
+                    BroadcastPreferences.LogError(
+                        $"Invalid regex pattern in topic '{DisplayName}': '{MessageRegexStrings}'"
+                    );
+                    MessageRegexes = null;
+                }
+            }
+            else
+            {
+                MessageRegexes = null;
+            }
+        }
+    }
+    #endregion
+
     #region Plugin\BroadcastPreferences.Configuration.cs
     private PluginConfig _config = new PluginConfig();
 
@@ -648,6 +727,76 @@ public partial class BroadcastPreferences : RustPlugin
     }
     #endregion
 
+    #region Configuration\PluginConfig.cs
+    public class PluginConfig
+    {
+        [JsonProperty(
+            PropertyName = "Topics",
+            NullValueHandling = NullValueHandling.Ignore,
+            DefaultValueHandling = DefaultValueHandling.Ignore
+        )]
+        public List<Topic> Topics = new();
+
+        [JsonProperty(PropertyName = "Version")]
+        public VersionNumber Version { get; set; }
+
+        public Topic? FindTopic(string search)
+        {
+            var topicByName = Topics.Find(t =>
+                string.Equals(t.DisplayName, search, StringComparison.OrdinalIgnoreCase)
+            );
+            if (topicByName != null)
+            {
+                return topicByName;
+            }
+            var topicById = Topics.Find(t => string.Equals(t.ID, search, StringComparison.OrdinalIgnoreCase));
+            if (topicById != null)
+            {
+                return topicById;
+            }
+            if (int.TryParse(search, out int index) && index > 0 && index <= Topics.Count)
+            {
+                return Topics[index - 1];
+            }
+            return null;
+        }
+    }
+    #endregion
+
+    #region Data\PluginData.cs
+    public class PluginData
+    {
+        [JsonProperty(
+            PropertyName = "Subscriptions",
+            NullValueHandling = NullValueHandling.Ignore,
+            DefaultValueHandling = DefaultValueHandling.Ignore
+        )]
+        public Dictionary<string, Dictionary<ulong, Subscription>> Subscriptions = new();
+
+        public bool IsPlayerSubscribed(string topicId, ulong userId, bool defaultSubscribe)
+        {
+            if (Subscriptions.TryGetValue(topicId, out var topicSubs))
+            {
+                if (topicSubs.TryGetValue(userId, out var subscription))
+                {
+                    return subscription.OptedIn;
+                }
+            }
+            return defaultSubscribe;
+        }
+
+        public Dictionary<ulong, Subscription> GetTopicSubscriptions(string topicId)
+        {
+            if (Subscriptions.TryGetValue(topicId, out var topicSubs))
+            {
+                return topicSubs;
+            }
+            Subscriptions[topicId] = new Dictionary<ulong, Subscription>();
+            return Subscriptions[topicId];
+        }
+    }
+    #endregion
+
     #region Plugin\BroadcastPreferences.Localization.cs
     private new void LoadDefaultMessages()
     {
@@ -721,155 +870,6 @@ public partial class BroadcastPreferences : RustPlugin
         if (!string.IsNullOrWhiteSpace(format))
         {
             Interface.Oxide.LogError("[{0}] {1}", Name, (args.Length != 0) ? string.Format(format, args) : format);
-        }
-    }
-    #endregion
-
-    #region Entities\Subscription.cs
-    public class Subscription
-    {
-        [JsonProperty(PropertyName = "Opted In")]
-        public bool OptedIn = true;
-    }
-    #endregion
-
-    #region Entities\Topic.cs
-    public class Topic
-    {
-        [JsonProperty(PropertyName = "Topic ID")]
-        public string ID = "";
-
-        [JsonProperty(PropertyName = "Display Name")]
-        public string DisplayName = "";
-
-        [JsonProperty(PropertyName = "Enabled")]
-        public bool Enabled = true;
-
-        [JsonProperty(PropertyName = "Description")]
-        public string Description = "";
-
-        [JsonProperty(PropertyName = "Subscribe By Default")]
-        public bool SubscribeByDefault = true;
-
-        [JsonProperty(PropertyName = "User ID Match (0=Ignore)")]
-        public ulong UserId = 0;
-
-        [JsonProperty(PropertyName = "Message Regex Match (empty=Ignore)")]
-        public List<string> MessageRegexStrings = new();
-
-        [JsonIgnore]
-        public List<Regex>? MessageRegexes { get; private set; }
-
-        [JsonProperty(PropertyName = "Override Steam Avatar User ID")]
-        public ulong SteamAvatarUserID = 0;
-
-        [JsonProperty(PropertyName = "Stop On Match")]
-        public bool StopOnMatch = false;
-
-        [JsonProperty(PropertyName = "Ignore Styles")]
-        public bool IgnoreStyles = true;
-
-        [OnDeserialized]
-        internal void OnDeserializedMethod(StreamingContext context)
-        {
-            if (string.IsNullOrEmpty(DisplayName))
-            {
-                DisplayName = string.IsNullOrEmpty(ID) ? Guid.NewGuid().ToString().Substring(0, 8) : ID;
-            }
-            if (string.IsNullOrEmpty(ID))
-            {
-                ID = DisplayName.Replace(" ", "_").ToLower();
-            }
-            if (MessageRegexStrings != null && MessageRegexStrings.Count > 0)
-            {
-                try
-                {
-                    MessageRegexes = MessageRegexStrings
-                        .Select(pattern => new Regex(pattern, RegexOptions.Compiled))
-                        .ToList();
-                }
-                catch
-                {
-                    BroadcastPreferences.LogError(
-                        $"Invalid regex pattern in topic '{DisplayName}': '{MessageRegexStrings}'"
-                    );
-                    MessageRegexes = null;
-                }
-            }
-            else
-            {
-                MessageRegexes = null;
-            }
-        }
-    }
-    #endregion
-
-    #region Configuration\PluginConfig.cs
-    public class PluginConfig
-    {
-        [JsonProperty(
-            PropertyName = "Topics",
-            NullValueHandling = NullValueHandling.Ignore,
-            DefaultValueHandling = DefaultValueHandling.Ignore
-        )]
-        public List<Topic> Topics = new();
-
-        [JsonProperty(PropertyName = "Version")]
-        public VersionNumber Version { get; set; }
-
-        public Topic? FindTopic(string search)
-        {
-            var topicByName = Topics.Find(t =>
-                string.Equals(t.DisplayName, search, StringComparison.OrdinalIgnoreCase)
-            );
-            if (topicByName != null)
-            {
-                return topicByName;
-            }
-            var topicById = Topics.Find(t => string.Equals(t.ID, search, StringComparison.OrdinalIgnoreCase));
-            if (topicById != null)
-            {
-                return topicById;
-            }
-            if (int.TryParse(search, out int index) && index > 0 && index <= Topics.Count)
-            {
-                return Topics[index - 1];
-            }
-            return null;
-        }
-    }
-    #endregion
-
-    #region Data\PluginData.cs
-    public class PluginData
-    {
-        [JsonProperty(
-            PropertyName = "Subscriptions",
-            NullValueHandling = NullValueHandling.Ignore,
-            DefaultValueHandling = DefaultValueHandling.Ignore
-        )]
-        public Dictionary<string, Dictionary<ulong, Subscription>> Subscriptions = new();
-
-        public bool IsPlayerSubscribed(string topicId, ulong userId, bool defaultSubscribe)
-        {
-            if (Subscriptions.TryGetValue(topicId, out var topicSubs))
-            {
-                if (topicSubs.TryGetValue(userId, out var subscription))
-                {
-                    return subscription.OptedIn;
-                }
-            }
-            return defaultSubscribe;
-        }
-
-        public Dictionary<ulong, Subscription> GetTopicSubscriptions(string topicId)
-        {
-            if (Subscriptions.TryGetValue(topicId, out var topicSubs))
-            {
-                return topicSubs;
-            }
-            Subscriptions[topicId] = new Dictionary<ulong, Subscription>();
-            return Subscriptions[topicId];
         }
     }
     #endregion
