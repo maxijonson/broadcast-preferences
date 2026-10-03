@@ -49,16 +49,24 @@ if not exist "%steam%" (
 @REM Download the server
 cd "%steam%"
 echo Downloading Rust server on %BRANCH% branch...
+@REM Forget the installed build so steam checks every file against the new one
+if exist "%server%\steamapps\appmanifest_258550.acf" del "%server%\steamapps\appmanifest_258550.acf"
 steamcmd.exe +force_install_dir "%server%" ^
 			 +login anonymous ^
              +app_update 258550 ^
 			 -beta %BRANCH% ^
              validate ^
-             +quit ^
+             +quit
+if errorlevel 1 (
+	echo Steam update failed, Oxide was not installed
+	exit /b 1
+)
 
-@REM Download latest development build of Oxide
-echo Downloading Oxide
-powershell -Command "(New-Object Net.WebClient).DownloadFile('https://github.com/OxideMod/Oxide.Rust/releases/latest/download/Oxide.Rust.zip', '%root%\oxide.zip')"
+@REM Download latest Oxide build matching the steam branch
+set OXIDE=release
+if "%BRANCH%" EQU "staging" set OXIDE=staging
+echo Downloading Oxide (%OXIDE%)
+powershell -Command "(New-Object Net.WebClient).DownloadFile('https://downloads.oxidemod.com/artifacts/Oxide.Rust/%OXIDE%/Oxide.Rust.zip', '%root%\oxide.zip')"
 
 @REM Extract it in the server folder
 echo Extracting Oxide
