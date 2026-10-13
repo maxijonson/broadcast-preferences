@@ -1,0 +1,25 @@
+<Project>
+    <PropertyGroup>
+        <!-- Set to true to also build lite/BroadcastPreferences.cs without the code inside #if PREMIUM. Needs NodeJS. -->
+        <LiteEdition>false</LiteEdition>
+        <!-- All csproj files live in the same folder, so each one gets its own obj folder for restore -->
+        <BaseIntermediateOutputPath>obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <TargetFramework>net48</TargetFramework>
+        <LangVersion>11</LangVersion>
+        <RootNamespace>Oxide.Plugins</RootNamespace>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <WarningsAsErrors>nullable</WarningsAsErrors>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+        <NoStandardLibraries>true</NoStandardLibraries>
+        <NoStdLib>true</NoStdLib>
+        <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+        <NoCompilerStandardLib>true</NoCompilerStandardLib>
+        <MSBuildWarningsAsMessages>MSB3277;MSB3106</MSBuildWarningsAsMessages>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(LiteEdition)' == 'true' And '$(Edition)' != 'Lite'">
+        <DefineConstants>$(DefineConstants);PREMIUM</DefineConstants>
+    </PropertyGroup>
+</Project>

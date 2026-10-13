@@ -8,8 +8,7 @@
       "./src"
     ],
     "Plugin Output Paths": [
-      "./",
-      "./server/oxide/plugins"
+      "./"
     ],
     "Reference Definitions": [],
     "Requires Definitions": [],
@@ -33,13 +32,17 @@
   },
   "Compile Settings": {
     "Assembly Paths": [
-      "./server/RustDedicated_Data/Managed"
+      "./servers/oxide-production/publicized",
+      "./servers/oxide-production/RustDedicated_Data/Managed"
     ],
     "Ignore Paths": [
-      "./server/RustDedicated_Data/Managed/x86",
-      "./server/RustDedicated_Data/Managed/x64"
+      "./servers/oxide-production/RustDedicated_Data/Managed/x86",
+      "./servers/oxide-production/RustDedicated_Data/Managed/x64"
     ],
-    "Ignore Files": [],
+    "Ignore Files": [
+      "./servers/oxide-production/RustDedicated_Data/Managed/Newtonsoft.Json.dll",
+      "./servers/oxide-production/RustDedicated_Data/Managed/Assembly-CSharp.dll"
+    ],
     "Compile Log Level (Hidden, Info, Warning, Error)": "Error"
   }
 }

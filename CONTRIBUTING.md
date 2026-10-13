@@ -2,48 +2,90 @@
 
 Thank you for considering contributing to the BroadcastPreferences plugin! We welcome contributions from the community to help improve and enhance the plugin. Please follow the guidelines below to ensure a smooth contribution process.
 
+> This plugin was created with [Carbonoxide](https://github.com/maxijonson/carbonoxide). If you like this project's tooling and structure, consider trying it for your next Rust plugin!
+
 ## Do not edit the root `BroadcastPreferences.cs` file
 
 The root `BroadcastPreferences.cs` file is auto-generated during the build process and should not be edited directly. Instead, please make your changes in the appropriate source files located in the `src` directory. While you may commit changes to the root file (e.g., through the `dotnet build` command), keep in mind that these changes will be overwritten the next time the project is built. **If a change is made in the root file but not in the source files, it will be lost**.
 
 ## Setup
 
-In case you're trying to replicate the dev environment I used, this plugin was originally developed using [VS Code](https://code.visualstudio.com/download) with the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit) extension installed. You may use other IDEs, but I can't guarantee that everything will work the same.
+I develop this plugin with [VS Code](https://code.visualstudio.com/download) and the [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit) extension. You can use other IDEs, but I can't guarantee everything will work the same.
 
-**Install dependencies**
+**Prerequisites**
 
-This plugin uses [MJSU's Plugin Merge tool](https://github.com/dassjosh/Plugin.Merge) to merge C# files into a single plugin file for Oxide. This makes it incredibly easier to manage and organize the codebase.
+- [dotnet](https://dotnet.microsoft.com/en-us/download/dotnet) SDK, for building the plugin and running the build scripts
+- Windows, for running the Rust servers and the scripts
+- [NodeJS](https://nodejs.org/), for [merging partial classes](#merging-partial-classes)
 
-You can install the Plugin Merge tool locally to the project using the following command:
+**Environments**
+
+The plugin supports both Oxide and Carbon, so it gets tested on local Rust servers for both. I call each one an environment. An environment is a local Rust server for one framework (Oxide or Carbon) on one Steam branch, which gives 4 of them:
+
+| Environment         | Framework | Rust branch | Port  |
+| ------------------- | --------- | ----------- | ----- |
+| `oxide-production`  | Oxide     | `public`    | 28015 |
+| `oxide-staging`     | Oxide     | `staging`   | 28016 |
+| `carbon-production` | Carbon    | `public`    | 28025 |
+| `carbon-staging`    | Carbon    | `staging`   | 28026 |
+
+Production is the `public` branch with the framework's stable build. It's what server owners are running right now. Staging is Rust's `staging` branch with the framework's staging build. It previews the next Rust update, not the next version of the plugin, so it's where you check that the plugin won't break when that update ships.
+
+Each environment lives in its own folder under `servers` and they can all run at the same time. You don't need all 4 though. The build only targets the environments you have a server for, so if you don't care about staging, just skip the staging scripts.
+
+**Create the servers**
+
+1. Run `dotnet tool restore` to install [MJSU's Plugin.Merge](https://github.com/dassjosh/Plugin.Merge) and CSharpier.
+2. Run `npm install` to install the [partial classes merging](#merging-partial-classes) script's dependencies.
+3. Run the `update_*.bat` scripts (not the `_update_*.bat` ones!) to create the servers in the `servers` folder. Each one is a full Rust server, around 8.5 GB. Run them again whenever Rust or the framework gets an update.
+4. Run each `run_*.bat` script once so the framework sets itself up, then stop the server once it's done loading. On Oxide, this writes the publicized game assemblies to `servers/oxide-*/publicized`, which the build needs. Do this again after every update so the build gets the latest assemblies.
+5. In each Carbon server's `servers/carbon-*/carbon/config.json`, set `DeveloperMode` to `true`, then run the server again. Carbon then generates the developer assemblies the build needs.
+6. Download [Better Chat](https://umod.org/plugins/better-chat) to `dependencies/plugins/BetterChat.cs` and run `copy_dependencies.bat`. Everything in `dependencies` gets copied into each server's `oxide` or `carbon` folder, so you can drop other plugins you want to test with in there too.
+
+To join a server, use the F1 console with the environment's port:
 
 ```
-dotnet tool restore
+client.connect localhost:28015
 ```
 
-**Create a Test Server**
+## Building the plugin
 
-This repo includes a few batch files to create, update and run a local Rust server with Oxide installed for testing purposes. You can use these scripts to quickly test your changes.
+```bash
+# Build against oxide-production, merge, format and copy to all servers
+dotnet build plugin.csproj
 
-1. Run the `update_production.bat` (or `update_staging.bat` for staging) script to update the local server (or create it if it doesn't exist).
-2. Run the `run.bat` script to start the server.
-3. Join the server in Rust using the F1 console command:
-   ```
-   client.connect localhost:28015
-   ```
+# Same thing, but rebuilds whenever you save a file
+dotnet watch build --project plugin.csproj
 
-**Build the plugin**
-
-To build the plugin and generate the `BroadcastPreferences.cs` and the `server/oxide/plugins/BroadcastPreferences.cs` file, run the following command in the root directory of the project:
-
-```
-dotnet build
+# Build for a specific environment (merge, format and copy to that server only)
+dotnet build oxide-production.csproj
+dotnet build oxide-staging.csproj
+dotnet build carbon-production.csproj
+dotnet build carbon-staging.csproj
 ```
 
-You can also watch for changes so that the plugin is rebuilt automatically whenever you save a file:
+`plugin.csproj` is the one I use while coding, but keep in mind it only compiles against oxide-production. Use `ValidateAll` to check the rest.
 
+## Validating all environments
+
+To check that the plugin compiles on every environment at once:
+
+```bash
+dotnet msbuild plugin.csproj -restore -t:ValidateAll
 ```
-dotnet watch build
-```
+
+This runs the normal build first, then compiles `src` against each environment you have a server for, and compiles the merged `BroadcastPreferences.cs` the same way both an Oxide and a Carbon server would.
+
+## VS Code setup
+
+- Use the `Tasks: Run Build Task` command to see all the build tasks, instead of typing out the commands above.
+- To switch between the Oxide and Carbon project contexts (e.g. to see code inside `#if CARBON` light up), use the `CSharp: Change the active document's project context` command while inside a `.cs` file and pick the environment's project.
+
+## Merging partial classes
+
+Plugin.Merge merges all the files in `src` into one, but at the time of writing, it just appends the partial classes one after another as it finds them. The merged plugin ends up with `partial class BroadcastPreferences` declarations sprinkled all over it, which is messy for anyone reading it (curators included).
+
+The [`post-merge.ts`](scripts/post-merge.ts) script merges them into a single class declaration. The build runs it automatically when it finds NodeJS and the `node_modules` folder, so `npm install` is all you need. The build still works without NodeJS, but then your `BroadcastPreferences.cs` won't match the committed one, so please set it up before opening a PR.
 
 ## Conventions
 
@@ -57,10 +99,9 @@ The goal of having the ability to split the plugin into multiple files is to imp
   - For example: All hooks are in their own file under the `Hooks` folder, rather than having one `BroadcastPreferences.Hooks.cs` file that may grow over time. Even if some of them are less than 20 lines, the idea is that the plugin may grow and more hooks may be added in the future. Growing the number of files is preferred over growing the size of existing files.
 - **Folder Structure**: Organize files in a way that makes sense and try to group related files together. You don't need to break your head over this though, there may be more than one acceptable place to add your file. Just organize them in a way that makes sense and easy to guess where they belong.
 - **Root Plugin Class**: Keep root class (`BroadcastPreferences`) methods and fields (i.e., those that belong to the `BroadcastPreferences` class) in the `Plugin` folder. Always prefix files under the `Plugin` folder with `BroadcastPreferences.` to signal that they belong to the root class. The `Plugin` folder is essentially the equivalent of a single large `BroadcastPreferences.cs` file split into multiple files.
-- **Namespaces**: Use a namespace name for each file that matches the parent folder name under `src`. For example, the file `src/Plugin/Commands/BroadcastPreferencesCommands.cs` should use the namespace `BroadcastPreferences.Plugin` because `Plugin` is the name of the top-most parent folder relative to `src`.
+- **Namespaces**: Use `BroadcastPreferencesPlugin.` followed by the top-most parent folder name under `src`. For example, the file `src/Plugin/Commands/BroadcastPreferencesCommands.cs` should use the namespace `BroadcastPreferencesPlugin.Plugin` because `Plugin` is the name of the top-most parent folder relative to `src`.
 - **Build Warnings & Errors**: Always ensure that your code compiles without any warnings or errors before submitting a pull request. Treat warnings as errors to maintain a high-quality codebase
 - **`FileOrder` Directive**: Use `//Define:FileOrder=<number>` at the top of files to control the order in which files are merged. Lower numbers are merged first, default is `1000`. Don't be afraid to space out numbers to allow for future insertions or even re-use existing ones. The current ordering is:
-  > As of Plugin.Merge v1.0.14, the FileOrder directive has an issue where all data files (separate classes) are always merged last, regardless of the specified order. Until then, it's fine to leave the order broken for data files (e.g: entities). A [PR](https://github.com/dassjosh/Plugin.Merge/pull/31) has been submitted to fix this issue.
   - `0` - Root
   - `100` - Vars
   - `200` - Hooks
@@ -81,6 +122,7 @@ The goal of having the ability to split the plugin into multiple files is to imp
 Before submitting a pull request, please ensure that:
 
 - Your code follows the existing coding style and conventions used in the project.
-- You have tested your changes in a local Rust server with Oxide to ensure they work as expected. Also test with the following plugins installed, as they are commonly used and may conflict with BroadcastPreferences:
+- `dotnet msbuild plugin.csproj -restore -t:ValidateAll` passes with no warnings.
+- You have tested your changes on both oxide-production and carbon-production to ensure they work as expected on both frameworks. If a Rust update is coming up, test on the staging environments too. Also test with the following plugins installed, as they are commonly used and may conflict with BroadcastPreferences:
   - [Better Chat by LaserHydra](https://umod.org/plugins/better-chat)
   - [Custom Icon by collectvood](https://umod.org/plugins/custom-icon)

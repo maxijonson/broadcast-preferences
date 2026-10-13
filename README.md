@@ -1,5 +1,7 @@
 Allows players to subscribe and unsubscribe to broadcast messages sent by other plugins. This helps manage notification fatigue in servers with multiple plugins sending frequent messages.
 
+Works on both Oxide and Carbon servers.
+
 ## Features
 
 - **Personalization**: Each player can subscribe or unsubscribe to specific broadcast topics.
@@ -22,6 +24,8 @@ Allows players to subscribe and unsubscribe to broadcast messages sent by other 
 - `broadcastpreferences.testreply [message]` - Sends a test direct reply message to all players. If no message is provided, a default test message is used. Can be useful for testing your topic regex configurations.
 
 ## Configuration
+
+The config file is `oxide/config/BroadcastPreferences.json` on Oxide and `carbon/configs/BroadcastPreferences.json` on Carbon. Player preferences are saved in `oxide/data/BroadcastPreferences.json` on Oxide and `carbon/data/BroadcastPreferences.json` on Carbon.
 
 ```json
 {
@@ -84,7 +88,7 @@ Allows players to subscribe and unsubscribe to broadcast messages sent by other 
   ],
   "Version": {
     "Major": 0,
-    "Minor": 1,
+    "Minor": 3,
     "Patch": 0
   }
 }
@@ -109,6 +113,8 @@ Allows players to subscribe and unsubscribe to broadcast messages sent by other 
   - `Ignore Styles`: If true, the plugin will strip any `<color>` and `<size>` tags from messages before processing them for this topic.
 
 ## Localization
+
+The English lang file is `oxide/lang/en/BroadcastPreferences.json` on Oxide and `carbon/lang/en/BroadcastPreferences.json` on Carbon.
 
 ```json
 {

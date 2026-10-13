@@ -1,32 +1,25 @@
 @echo off
 
-if "%1" EQU "" (
-	set TAG=preview
-) else (
-	set TAG=%1
+if "%~4" EQU "" (
+	echo Usage: _update_carbon.bat ^<tag^> ^<branch^> ^<build^> ^<server-dir^>
+	exit /b 1
 )
 
-if "%TAG%" EQU "production" (
-	set BUILD=Release
-) else (
-	SET BUILD=Debug
-)
-
-if "%2" EQU "" (
-	set BRANCH=public
-) else (
-	set BRANCH=%2
-)
+set TAG=%~1
+set BRANCH=%~2
+set BUILD=%~3
 
 SET root=%cd%
-SET server=%root%\server
+SET server=%root%\servers\%~4
 SET steam=%root%\steam
 SET steamCmd=https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip
+SET carbonUrl=https://github.com/CarbonCommunity/Carbon/releases/download/%TAG%_build/Carbon.Windows.%BUILD%.zip
 
 echo Server directory: %server%
 echo Steam directory: %steam%
 echo Root directory: %root%
 echo Branch: %BRANCH%
+echo Carbon URL: %carbonUrl%
 
 @REM Ensure folders are created
 if not exist "%server%" mkdir "%server%"
@@ -35,7 +28,7 @@ if not exist "%server%" mkdir "%server%"
 if not exist "%steam%" (
 	mkdir "%steam%"
 	cd "%steam%"
-	
+
 	echo Downloading Steam
 	powershell -Command "(New-Object Net.WebClient).DownloadFile('%steamCmd%', '%root%\steam.zip')"
 	echo Extracting Steam
@@ -43,8 +36,6 @@ if not exist "%steam%" (
 
 	del "%root%\steam.zip"
 )
-
-
 
 @REM Download the server
 cd "%steam%"
@@ -58,25 +49,23 @@ steamcmd.exe +force_install_dir "%server%" ^
              validate ^
              +quit
 if errorlevel 1 (
-	echo Steam update failed, Oxide was not installed
+	echo Steam update failed, Carbon was not installed
 	exit /b 1
 )
 
-@REM Download latest Oxide build matching the steam branch
-set OXIDE=release
-if "%BRANCH%" EQU "staging" set OXIDE=staging
-echo Downloading Oxide (%OXIDE%)
-powershell -Command "(New-Object Net.WebClient).DownloadFile('https://downloads.oxidemod.com/artifacts/Oxide.Rust/%OXIDE%/Oxide.Rust.zip', '%root%\oxide.zip')"
+@REM Download latest Carbon build
+echo Downloading Carbon
+powershell -Command "(New-Object Net.WebClient).DownloadFile('%carbonUrl%', '%root%\carbon.zip')"
 
-@REM Extract it in the server folder
-echo Extracting Oxide
-powershell -Command "Expand-Archive '%root%\oxide.zip' -DestinationPath '%root%\Oxide.Rust'" -Force
+@REM Extract Carbon
+echo Extracting Carbon
+powershell -Command "Expand-Archive '%root%\carbon.zip' -DestinationPath '%root%\Carbon'" -Force
 
-@REM Copy the files to the server folder, only overwriting files in recursive folders, not the folders themselves
-echo Copying Oxide files
-xcopy %root%\Oxide.Rust\* %root%\server /y /s /i
+@REM Copy the files to the server folder
+echo Copying Carbon files
+xcopy %root%\Carbon\* "%server%" /y /s /i
 
 @REM Cleanup
 echo Cleaning up
-del %root%\oxide.zip
-rmdir /s /q %root%\Oxide.Rust
+del %root%\carbon.zip
+rmdir /s /q %root%\Carbon

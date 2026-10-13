@@ -1,0 +1,45 @@
+<Project>
+    <PropertyGroup>
+        <RustServerManagedPath>$(ServerPath)/RustDedicated_Data/Managed</RustServerManagedPath>
+        <RustPublicizedPath>$(ServerPath)/publicized</RustPublicizedPath>
+    </PropertyGroup>
+
+    <Target Name="CheckPublicizedAssemblies" BeforeTargets="ResolveAssemblyReferences">
+        <Error
+            Condition="!Exists('$(RustPublicizedPath)/Assembly-CSharp.dll')"
+            Text="$(RustPublicizedPath)/Assembly-CSharp.dll is missing. Start the $(ServerPath) server once with its run_*.bat script so Oxide writes it there."
+        />
+    </Target>
+
+    <ItemGroup>
+        <Reference Include="$(RustPublicizedPath)/Assembly-CSharp.dll" Private="false" />
+        <Reference
+            Include="$(RustServerManagedPath)/*.dll"
+            Exclude="
+                $(RustServerManagedPath)/Assembly-CSharp.dll;
+                $(RustServerManagedPath)/Newtonsoft.Json.dll;
+                $(RustServerManagedPath)/Microsoft.Win32.Registry.dll;
+                $(RustServerManagedPath)/System.Threading.Tasks.Extensions.dll;
+                $(RustServerManagedPath)/System.Configuration.Install.dll;
+                $(RustServerManagedPath)/System.IO.Compression.dll;
+                $(RustServerManagedPath)/System.Runtime.dll;
+                $(RustServerManagedPath)/System.IO.FileSystem.AccessControl.dll;
+                $(RustServerManagedPath)/System.Security.Principal.Windows.dll;
+                $(RustServerManagedPath)/System.Security.AccessControl.dll;
+                $(RustServerManagedPath)/Microsoft.Bcl.AsyncInterfaces.dll;
+                $(RustServerManagedPath)/System.Text.Encodings.Web.dll;
+                $(RustServerManagedPath)/System.Security.Cryptography.ProtectedData.dll;
+                $(RustServerManagedPath)/System.Numerics.Vectors.dll;
+            "
+            Private="false"
+        />
+    </ItemGroup>
+
+    <Target Name="CopyPlugin" AfterTargets="PostBuild" Condition="'$(SkipPostBuild)' != 'true'">
+        <Copy
+            SourceFiles="BroadcastPreferences.cs"
+            DestinationFolder="$(ServerPath)/oxide/plugins"
+            Condition="Exists('$(ServerPath)/oxide/plugins')"
+        />
+    </Target>
+</Project>
