@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +14,9 @@ using Oxide.Core.Configuration;
 //BroadcastPreferences created with PluginMerge v(1.0.15.0) by MJSU @ https://github.com/dassjosh/Plugin.Merge
 namespace Oxide.Plugins;
 
-[Info("Broadcast Preferences", "MaxiJonson", "0.2.1")]
+[Info("Broadcast Preferences", "MaxiJonson", "0.3.0")]
 [Description("Allow players to subscribe or unsubscribe from broadcasted messages by topic.")]
-public partial class BroadcastPreferences : RustPlugin
+public class BroadcastPreferences : RustPlugin
 {
     #region Plugin\BroadcastPreferences.Vars.cs
     private new const string Name = "BroadcastPreferences";
@@ -52,7 +54,7 @@ public partial class BroadcastPreferences : RustPlugin
     #endregion
 
     #region Plugin\Hooks\BroadcastPreferences.OnSendCommand.cs
-    private object? OnSendCommand(Connection? cn, string? command, object[]? args)
+    private object? OnSendCommand(Connection cn, string? command, object[]? args)
     {
         if (cn == null)
             return null;
@@ -73,7 +75,7 @@ public partial class BroadcastPreferences : RustPlugin
         }
     }
 
-    private object? OnSendCommand(List<Connection>? connections, string? command, object[]? args)
+    private object? OnSendCommand(List<Connection> connections, string? command, object[]? args)
     {
         if (command != "chat.add" && command != "chat.add2")
             return null;

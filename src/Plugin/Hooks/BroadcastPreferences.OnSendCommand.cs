@@ -8,7 +8,7 @@ namespace BroadcastPreferencesPlugin.Plugin;
 
 public partial class BroadcastPreferences
 {
-    private object? OnSendCommand(Connection? cn, string? command, object[]? args)
+    private object? OnSendCommand(Connection cn, string? command, object[]? args)
     {
         if (cn == null)
             return null;
@@ -29,7 +29,7 @@ public partial class BroadcastPreferences
         }
     }
 
-    private object? OnSendCommand(List<Connection>? connections, string? command, object[]? args)
+    private object? OnSendCommand(List<Connection> connections, string? command, object[]? args)
     {
         if (command != "chat.add" && command != "chat.add2")
             return null;
